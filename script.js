@@ -194,11 +194,21 @@ copyButton.addEventListener('click', function() {
     });
 });
 
+// Function to compress the xmlData
+function compressData(data) {
+    return LZString.compressToEncodedURIComponent(data);
+}
+
+// Function to decompress the xmlData
+function decompressData(data) {
+    return LZString.decompressFromEncodedURIComponent(data);
+}
+
 // Function to generate a link to table.html with xmlData query parameter
 function generateLink(xmlDoc) {
     const xmlString = new XMLSerializer().serializeToString(xmlDoc);
-    const encodedXml = encodeURIComponent(xmlString);
-    const link = `table.html?xmlData=${encodedXml}`;
+    const compressedXml = compressData(xmlString); // Compress the xmlData
+    const link = `table.html?xmlData=${compressedXml}`;
     const linkContainer = document.getElementById('linkContainer');
         const existingLink = linkContainer.querySelector('a');
     if (existingLink) {

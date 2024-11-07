@@ -94,13 +94,19 @@ function displayXMLAsTable(xml) {
     tableContainer.appendChild(table);
 }
 
+// Function to decompress the xmlData
+function decompressData(data) {
+    return LZString.decompressFromEncodedURIComponent(data);
+}
+
 // Function to handle HTTP query payload
 function handleHttpQueryPayload() {
     const urlParams = new URLSearchParams(window.location.search);
     const xmlData = urlParams.get('xmlData');
     if (xmlData) {
+        const decompressedXmlData = decompressData(xmlData); // Decompress the xmlData
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlData, "text/xml");
+        const xmlDoc = parser.parseFromString(decompressedXmlData, "text/xml");
         displayXMLAsTable(xmlDoc);
     }
 }
