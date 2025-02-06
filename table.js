@@ -7,7 +7,7 @@ function displayXMLAsTable(xml) {
     table.classList.add('uk-table');
     table.classList.add('uk-table-divider');
 
-    const headers = ['Environment Id', 'Machine Id', 'AlternateId', 'Role Id', 'OS'];
+    const headers = ['Environment', 'Machine', 'IP', 'OS', 'Role'];
     
     // Create table header
     const thead = document.createElement('thead');
