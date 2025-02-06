@@ -7,6 +7,7 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
             const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
             displayXMLAsTable(xmlDoc);
             generateLink(xmlDoc); // Call generateLink after XML is parsed and displayed
+	    updateURLWithCompressedXML(xmlDoc); // Update URL with compressed XML
         };
         reader.readAsText(file);
     }
@@ -17,11 +18,20 @@ function handleHttpQueryPayload() {
     const urlParams = new URLSearchParams(window.location.search);
     const xmlData = urlParams.get('xmlData');
     if (xmlData) {
+        const decompressedXmlData = decompressData(xmlData); // Decompress the xmlData
         const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlData, "text/xml");
+        const xmlDoc = parser.parseFromString(decompressedXmlData, "text/xml");
         displayXMLAsTable(xmlDoc);
         generateLink(xmlDoc); // Call generateLink after XML is parsed and displayed
     }
+}
+
+// Function to update the URL with compressed XML data
+function updateURLWithCompressedXML(xmlDoc) {
+    const xmlString = new XMLSerializer().serializeToString(xmlDoc);
+    const compressedXml = compressData(xmlString); // Compress the xmlData
+    const newUrl = `${window.location.pathname}?xmlData=${compressedXml}`;
+    window.history.replaceState(null, '', newUrl);
 }
 
 function displayXMLAsTable(xml) {
@@ -33,7 +43,7 @@ function displayXMLAsTable(xml) {
     table.classList.add('uk-table');
     table.classList.add('uk-table-divider');
 
-    const headers = ['Environment Id', 'Machine Id', 'AlternateId', 'Role Id'];
+    const headers = ['Environment', 'Machine', 'IP', 'OS', 'Role'];
     
     // Create table header
     const thead = document.createElement('thead');
@@ -63,6 +73,9 @@ function displayXMLAsTable(xml) {
         Array.from(machines).forEach(machine => {
             const machineId = machine.getElementsByTagName('Id')[0].textContent;
             const alternateId = machine.getElementsByTagName('AlternateId')[0].textContent;
+            const osFamily = machine.getElementsByTagName('family')[0].textContent;
+            const osArch = machine.getElementsByTagName('arch')[0].textContent;
+            const os = `${osFamily} ${osArch}`;
             const roles = Array.from(machine.getElementsByTagName('Role')); // Ensure roles is an array
             const roleCount = roles.length;
 
@@ -94,6 +107,13 @@ function displayXMLAsTable(xml) {
                     alternateIdCell.style.borderBottom = '2px solid #000'; // Thicker bottom border for alternateId rows
                     alternateIdCell.style.padding = '12px 15px';
                     tr.appendChild(alternateIdCell);
+
+                    const osCell = document.createElement('td');
+                    osCell.textContent = os;
+                    osCell.rowSpan = roleCount;
+                    osCell.style.borderBottom = '2px solid #000'; // Thicker bottom border for OS rows
+                    osCell.style.padding = '12px 15px';
+                    tr.appendChild(osCell);
                 }
 
                 const roleId = role.getElementsByTagName('Id')[0].textContent;
