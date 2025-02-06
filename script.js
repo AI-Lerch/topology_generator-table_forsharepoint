@@ -7,6 +7,7 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
             const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
             displayXMLAsTable(xmlDoc);
             generateLink(xmlDoc); // Call generateLink after XML is parsed and displayed
+	    updateURLWithCompressedXML(xmlDoc); // Update URL with compressed XML
         };
         reader.readAsText(file);
     }
@@ -23,6 +24,14 @@ function handleHttpQueryPayload() {
         displayXMLAsTable(xmlDoc);
         generateLink(xmlDoc); // Call generateLink after XML is parsed and displayed
     }
+}
+
+// Function to update the URL with compressed XML data
+function updateURLWithCompressedXML(xmlDoc) {
+    const xmlString = new XMLSerializer().serializeToString(xmlDoc);
+    const compressedXml = compressData(xmlString); // Compress the xmlData
+    const newUrl = `${window.location.pathname}?xmlData=${compressedXml}`;
+    window.history.replaceState(null, '', newUrl);
 }
 
 function displayXMLAsTable(xml) {
